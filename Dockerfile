@@ -22,4 +22,6 @@ COPY . .
 # Use unbuffered output for better logging (esp. in production)
 ENV PYTHONUNBUFFERED=1
 
+EXPOSE 8000
+
 CMD ["python", "app.py"]
