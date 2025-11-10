@@ -25,5 +25,4 @@ ENV PYTHONUNBUFFERED=1
 # Expose the service port
 EXPOSE 8000
 
-# Use exec form for proper signal handling with uvicorn (ASGI server)
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["mcp", "install", "app.py"]
