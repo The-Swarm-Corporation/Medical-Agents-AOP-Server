@@ -226,6 +226,7 @@ deployer = AOP(
     port=8000,
     verbose=True,
     log_level="INFO",
+    queue_enabled=False,
 )
 
 agents = [

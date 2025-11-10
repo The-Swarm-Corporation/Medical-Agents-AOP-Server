@@ -1,8 +1,7 @@
-import os
 import asyncio
+
 from mcp import ClientSession
 from mcp.client.streamable_http import streamablehttp_client
-
 
 AOP_URL = "https://medical-agents-aop-server-production.up.railway.app/mcp"
 # AOP_URL = "http://localhost:8000/mcp"
