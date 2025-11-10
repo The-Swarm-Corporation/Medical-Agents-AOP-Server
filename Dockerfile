@@ -22,7 +22,4 @@ COPY . .
 # Use unbuffered output for better logging (esp. in production)
 ENV PYTHONUNBUFFERED=1
 
-# Expose the service port
-EXPOSE 8000
-
 CMD ["python", "app.py"]
