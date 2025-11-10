@@ -23,12 +23,6 @@ source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-`requirements.txt` (minimal):
-
-```text
-swarms
-```
-
 ## Quick Start: Run the Server
 
 This repository ships with a ready‑to‑run server in `app.py` that registers six medical agents.
@@ -91,15 +85,15 @@ Minimal example (single agent):
 from swarms import Agent
 
 my_agent = Agent(
-    agent_name="My-Custom-Agent",
-    agent_description="Explains X and summarizes Y for educational purposes",
-    model_name="claude-haiku-4-5",
-    max_loops=1,
-    dynamic_temperature_enabled=True,
-    system_prompt="""You are a helpful specialist...""",
-    tags=["custom"],
-    capabilities=["explanation"],
-    role="worker",
+  agent_name="My-Custom-Agent",
+  agent_description="Explains X and summarizes Y for educational purposes",
+  model_name="claude-haiku-4-5",
+  max_loops=1,
+  dynamic_temperature_enabled=True,
+  system_prompt="""You are a helpful specialist...""",
+  tags=["custom"],
+  capabilities=["explanation"],
+  role="worker",
 )
 
 deployer.add_agent(my_agent)
@@ -200,6 +194,55 @@ call_tool(
   arguments={"task": "Summarize SOAP note; list meds, problems, gaps"}
 )
 ```
+
+## Using the MCP Python Client (Official)
+
+You can connect to this AOP server with the official `mcp` Python client (streamable HTTP transport) to discover tools and call agents.
+
+Install:
+
+```bash
+pip install mcp
+```
+
+List tools and call an agent:
+
+```python
+import asyncio
+from mcp import ClientSession
+from mcp.client.streamable_http import streamablehttp_client
+
+AOP_URL = "http://localhost:8000/mcp"  # adjust if you changed host/port
+
+async def main():
+    async with streamablehttp_client(AOP_URL) as (read, write, _):
+        async with ClientSession(read, write) as session:
+            await session.initialize()
+
+            # 1) List available tools (registered agents)
+            tools = await session.list_tools()
+            print("Tools:", [t.name for t in tools.tools])
+
+            # 2) Call a specific agent by tool name
+            tool_name = "Blood-Data-Analysis-Agent"  # replace with any agent name you registered
+            result = await session.call_tool(
+                tool_name,
+                arguments={
+                    "task": "Interpret this CBC: WBC 15.2, HGB 10.1, PLT 420",
+                    # Optional extras per this server's schema:
+                    # "img": "/path/to/image.png",
+                    # "imgs": ["/path/a.png", "/path/b.png"],
+                    # "correct_answer": "..."
+                },
+            )
+            print("Agent result:", result)  # CallToolResult
+
+asyncio.run(main())
+```
+
+Notes:
+- `AOP_URL` defaults to `http://localhost:8000/mcp` based on this repo’s server config.
+- All agents share the same input parameters: `task` (required), plus optional `img`, `imgs`, `correct_answer`.
 
 ## Discovery and Queue Management Tools
 
