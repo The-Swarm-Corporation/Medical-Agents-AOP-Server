@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 
 # C extensions
+agent_workspace/
 *.so
 
 # Distribution / packaging
