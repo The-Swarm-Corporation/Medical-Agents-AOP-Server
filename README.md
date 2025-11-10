@@ -9,17 +9,9 @@ A production‑ready template for deploying multiple specialized medical agents 
 - Sensible defaults, safety language, and structured outputs
 - Clear examples for customization and MCP client usage
 
-## Prerequisites
-
-- Python 3.9+ recommended
-- `pip` available in your environment
-- Access to model providers required by the chosen `model_name` values (e.g., Anthropic for `claude-haiku-4-5`); configure credentials per provider documentation
-
 ## Installation
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
@@ -129,72 +121,6 @@ All tools return:
 }
 ```
 
-### Discovering and Selecting Tools (Client‑Side)
-
-If you’re building a Python client, you can use `AOPCluster` to discover tools across one or more servers:
-
-```python
-from swarms.structs.aop import AOPCluster
-
-cluster = AOPCluster(
-    urls=["http://localhost:8000/mcp"],
-    transport="streamable-http",
-)
-
-all_tools = cluster.get_tools(output_type="dict")
-research_tool_info = cluster.find_tool_by_server_name("Blood-Data-Analysis-Agent")
-```
-
-You can then call the corresponding MCP tool by name in your MCP‑compatible client with the appropriate arguments. For example, conceptually:
-
-```python
-# Pseudocode – your MCP client will provide the concrete API
-call_tool(
-  name="Blood-Data-Analysis-Agent",
-  arguments={"task": "Interpret this CBC: ..."}
-)
-```
-
-### Example Calls (Conceptual)
-
-```python
-# Lab analysis
-call_tool(
-  name="Blood-Data-Analysis-Agent",
-  arguments={"task": "Interpret this CBC with elevated WBC and low HGB..."}
-)
-
-# ICD-10 mapping
-call_tool(
-  name="ICD10-Symptom-Mapper-Agent",
-  arguments={"task": "Adult with acute left lower quadrant abdominal pain 24h..."}
-)
-
-# Treatment options
-call_tool(
-  name="Treatment-Solutions-Agent",
-  arguments={"task": "Non-directive overview of options for mild persistent asthma"}
-)
-
-# Drug interactions
-call_tool(
-  name="Drug-Interaction-Agent",
-  arguments={"task": "Check interactions between sertraline, tramadol, and supplements"}
-)
-
-# Imaging triage
-call_tool(
-  name="Imaging-Triage-Agent",
-  arguments={"task": "CXR: 'Right lower lobe opacity' – plain-language context"}
-)
-
-# Clinical note summarization
-call_tool(
-  name="Clinical-Note-Summarizer-Agent",
-  arguments={"task": "Summarize SOAP note; list meds, problems, gaps"}
-)
-```
-
 ## Using the MCP Python Client (Official)
 
 You can connect to this AOP server with the official `mcp` Python client (streamable HTTP transport) to discover tools and call agents.
@@ -243,6 +169,57 @@ asyncio.run(main())
 Notes:
 - `AOP_URL` defaults to `http://localhost:8000/mcp` based on this repo’s server config.
 - All agents share the same input parameters: `task` (required), plus optional `img`, `imgs`, `correct_answer`.
+
+## Examples (MCP client)
+
+This repo includes runnable examples using the official MCP streamable HTTP client in `examples/`.
+
+- `examples/get_server_info.py`: Print available tools and, if exposed, AOP agent names
+- `examples/list_tools.py`: List all registered tools (agents)
+- `examples/call_agent.py`: Call a specific agent by name with a `task`
+- `examples/discover_and_call.py`: Discover agents and call one (prefers a tag if provided)
+- `examples/queue_management.py`: Show/pause/resume/clear queue for a specific agent
+- `examples/search_agents.py`: Search agents by keywords/fields
+
+Setup:
+
+```bash
+pip install -r requirements.txt
+# optional: point to a different server
+export AOP_URL="http://localhost:8000/mcp"
+```
+
+Run:
+
+```bash
+# List tools
+python examples/list_tools.py
+
+# Call an agent (configure via env, no CLI flags)
+export AGENT_NAME="Blood-Data-Analysis-Agent"
+export AGENT_TASK="Interpret this CBC..."
+# optional:
+# export AGENT_IMG="/path/to/image.png"
+# export AGENT_IMGS="/path/a.png,/path/b.png"
+# export AGENT_CORRECT_ANSWER="..."
+python examples/call_agent.py
+
+# Discover agents and call one (configure via env)
+export PREFER_TAG="research"
+export FALLBACK_NAME="Blood-Data-Analysis-Agent"
+export TASK="Provide a brief summary of CBC interpretation basics."
+python examples/discover_and_call.py
+
+# Queue management (stats|pause|resume|clear)
+export AGENT_NAME="Blood-Data-Analysis-Agent"
+export QUEUE_ACTION="stats"
+python examples/queue_management.py
+
+# Search agents (configure via env)
+export SEARCH_QUERY="research"
+# optional: export SEARCH_FIELDS="name,description,tags,capabilities"
+python examples/search_agents.py
+```
 
 ## Discovery and Queue Management Tools
 

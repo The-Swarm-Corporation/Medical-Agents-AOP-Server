@@ -1,2 +1,3 @@
 swarms
 mcp
+uvicorn
