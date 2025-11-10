@@ -25,4 +25,4 @@ ENV PYTHONUNBUFFERED=1
 # Expose the service port
 EXPOSE 8000
 
-CMD ["mcp", "install", "app.py"]
+CMD ["python", "app.py"]
