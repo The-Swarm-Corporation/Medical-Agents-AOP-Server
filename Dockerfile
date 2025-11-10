@@ -23,7 +23,7 @@ COPY . .
 ENV PYTHONUNBUFFERED=1
 
 # Expose the service port
-EXPOSE 8080
+EXPOSE 8000
 
 # Use exec form for proper signal handling
 CMD ["python", "app.py"]

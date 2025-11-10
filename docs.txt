@@ -749,6 +749,40 @@ if research_tool:
     print(json.dumps(research_tool, indent=2))
 else:
     print("Research-Agent tool not found")
+MCP Python Client Examples¶
+Use the official MCP Python client with Streamable HTTP to discover tools and call agents.
+
+Install:
+pip install mcp
+
+List tools and call an agent:
+
+import asyncio
+from mcp import ClientSession
+from mcp.client.streamable_http import streamablehttp_client
+
+AOP_URL = "http://localhost:8000/mcp"
+
+async def main():
+    async with streamablehttp_client(AOP_URL) as (read_stream, write_stream, _):
+        async with ClientSession(read_stream, write_stream) as session:
+            # Initialize the connection
+            await session.initialize()
+
+            # List available tools (agents)
+            tools = await session.list_tools()
+            print("Tools:", [t.name for t in tools.tools])
+
+            # Call a specific agent (tool) by name
+            result = await session.call_tool(
+                "Blood-Data-Analysis-Agent",
+                arguments={"task": "Interpret this CBC: WBC 15.2, HGB 10.1, PLT 420"},
+            )
+            print("CallToolResult:", result)
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
 Discovery Tools Examples¶
 The AOP server automatically provides discovery tools that allow agents to learn about each other. Here are examples of how to use these tools:
 
